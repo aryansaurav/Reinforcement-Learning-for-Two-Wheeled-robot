@@ -45,6 +45,7 @@ if __name__ == '__main__':
     my_mdp = mdp_qolo(my_reward)
 
     my_mdp.build_transition_prob()
+    # Deactivate this snippet to save/load transition probability files from disk.
     # my_mdp.sa_s.tofile('data/qolo_sa_s5.dat')
     # my_mdp.sa_p.tofile('data/qolo_sa_p5.dat')
     # my_mdp.R.tofile('data/qolo_R5.dat')
@@ -92,51 +93,23 @@ if __name__ == '__main__':
 
     initial_state = np.array([5,  1.3,  3.14])
 
-    # temp_gamma_list = [0.2, 0.1, 0.05, 0.03, 0.01]
-    temp_gamma_list = [0.5,  0.7, 0.9, 1.0]
-    # temp_gamma_list = [ 0.5]
-    # temp_gamma = 0.5
 
-    # trig_t_list = [10,15,20, 40]
-    trig_t = 15
+    myagent = agent(discrete_mdp=my_mdp, reward= my_reward, T=50, discount= 1)
+    myagent.generate_value_function()
 
 
-    trig_dur = 3
-    # trig_dur_list = [1, 3, 5, 7, 9]
-    for temp_gamma in temp_gamma_list:
-    # for trig_t in trig_t_list:
-
-        myagent = agent(discrete_mdp=my_mdp, reward= my_reward, T=50, discount= 1, temp_discount= temp_gamma,
-                        trigger_t= trig_t, trigger_duration=trig_dur, trigger_pos = my_reward.features[3].pos )
-        myagent.generate_value_function()
+    [traj_states, traj_actions] = myagent.soft_max_policy(initial_state)
 
 
-        [traj_states, traj_actions] = myagent.soft_max_policy(initial_state)
+    c = next(color)
+    ax.plot(traj_states[:, 0], traj_states[:, 1], c=c, marker='.', label='$\gamma_t = {:.02f}$'.format(temp_gamma), zorder=1)
+    # plt.scatter(traj_states[trig_t, 0], traj_states[trig_t, 1], marker='o', color='r', zorder=2, s=120)         # Position where trigger was pressed
 
-
-        # traj_actions = -1*np.ones((20,2))
-        # traj_actions[:,1] = -1* np.ones((20))
-        # traj_states = np.zeros((11,3))
-        # traj_states[0,:] = [3,3,2]
-        #
-        # for i in range(10):
-        #     traj_ss, traj_sp,traj_states[i + 1, :]  = my_mdp.control(traj_states[i,:], traj_actions[i,:],dt=0.2)
-        #     traj_states[i + 1, :] = traj_sp.dot(my_mdp.state_vals[traj_ss,:] )
-        # print(traj_actions)
-        # print(traj_states)
-        #
-        # print(myagent.reward.features[0].pos)
-        # print('Time taken to generate the trajectory=', duration)
-
-        c = next(color)
-        ax.plot(traj_states[:, 0], traj_states[:, 1], c=c, marker='.', label='$\gamma_t = {:.02f}$'.format(temp_gamma), zorder=1)
-        # plt.scatter(traj_states[trig_t, 0], traj_states[trig_t, 1], marker='o', color='r', zorder=2, s=120)         # Position where trigger was pressed
-
-        # ax.plot(traj_states[:,0], traj_states[:,1], 'co')
-        # ax.plot(traj_states[:,0], traj_states[:,1], 'C3-.x', label='$\gamma_t = {:.02f}$' .format(temp_gamma))
-        # ax.plot(traj_states[:,0], traj_states[:,1], 'b-.x', label='$t_g = {:d}, \quad \delta t = {:d}$' .format(trig_t, trig_dur))
-        # ax.plot(traj_states[:,0], traj_states[:,1], 'c--x', label=' Constant $\gamma = 1$')
-        ax.legend()
+    # ax.plot(traj_states[:,0], traj_states[:,1], 'co')
+    # ax.plot(traj_states[:,0], traj_states[:,1], 'C3-.x', label='$\gamma_t = {:.02f}$' .format(temp_gamma))
+    # ax.plot(traj_states[:,0], traj_states[:,1], 'b-.x', label='$t_g = {:d}, \quad \delta t = {:d}$' .format(trig_t, trig_dur))
+    # ax.plot(traj_states[:,0], traj_states[:,1], 'c--x', label=' Constant $\gamma = 1$')
+    ax.legend()
 
 
 
